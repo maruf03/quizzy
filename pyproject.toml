@@ -19,6 +19,8 @@ django-prometheus = "2.3.1"
 psycopg-binary = "^3.2.9"
 boto3 = "1.34.148"
 django-storages = "1.14.2"
+ecs-logging = "2.1.0"
+python-json-logger = "2.0.7"
 
 [tool.poetry.group.dev.dependencies]
 black = "24.4.2"

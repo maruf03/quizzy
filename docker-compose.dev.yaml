@@ -14,6 +14,8 @@ x-common-env: &common-env
   AWS_QUERYSTRING_AUTH: "0"
   USE_SEPARATE_STATIC_BUCKET: "1"
   STATIC_AWS_STORAGE_BUCKET_NAME: quizzy-dev-static
+  LOG_FORMAT: json
+  LOG_LEVEL: INFO
 
 services:
   web:
@@ -58,6 +60,30 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
+
+  loki:
+    image: grafana/loki:2.9.4
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+
+  prom:
+    image: prom/prometheus:v2.53.0
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:10.4.5
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loki
+      - prom
 
 volumes:
   redis_data:

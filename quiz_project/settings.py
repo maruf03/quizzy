@@ -291,6 +291,45 @@ FEATURE_FLAGS = {
 }
 MAX_QUIZ_ATTEMPTS = 3
 
+# ----------------------------------------------------------------------------
+# Logging (plaintext default, JSON/ECS selectable) 
+# LOG_FORMAT: 'plain' | 'json' | 'ecs'
+# LOG_LEVEL: DEBUG/INFO/WARNING/ERROR
+# ----------------------------------------------------------------------------
+LOG_FORMAT = os.environ.get("LOG_FORMAT", "plain").lower()
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+
+JSON_LOGGING = LOG_FORMAT in {"json", "ecs"}
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "plain": {
+            "format": "%(asctime)s %(levelname)s [%(name)s] %(message)s",
+        },
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s %(pathname)s %(lineno)d",
+        },
+        "ecs": {
+            "()": "ecs_logging.StdlibFormatter",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain" if LOG_FORMAT == "plain" else ("ecs" if LOG_FORMAT == "ecs" else "json"),
+            "level": LOG_LEVEL,
+        }
+    },
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+    "loggers": {
+        "django.request": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+        "django.db.backends": {"handlers": ["console"], "level": os.environ.get("DB_LOG_LEVEL", "WARNING"), "propagate": False},
+    },
+}
+
 # Email / SMTP (local mail server at 127.0.0.1:1025)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = '127.0.0.1'

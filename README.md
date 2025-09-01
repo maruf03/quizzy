@@ -247,3 +247,47 @@ This stores files like: `private/users/<user_id>/avatars/<uuid>.jpg`
 ### Fallback (Local Storage)
 Set `USE_S3=0` to revert to Django's default local filesystem storage (useful for quick experiments without MinIO running).
 
+## Observability: Metrics & Logs
+
+### Metrics
+`django-prometheus` exposes `/metrics`. In dev compose, Prometheus scrapes it and Grafana (if you add a datasource to `http://prom:9090`) can visualize.
+
+Prometheus config file: `observability/prometheus.yml` (static scrape of the `web` service).
+
+### Structured Logging
+Environment variables:
+```
+LOG_FORMAT=plain|json|ecs
+LOG_LEVEL=INFO
+DB_LOG_LEVEL=WARNING
+```
+Default is `plain`; compose files set `json`.
+
+Format behaviors:
+- plain: human-readable single line
+- json: `python-json-logger` structured fields (timestamp, level, name, message, path, line)
+- ecs: Elastic Common Schema via `ecs-logging` (use when shipping to Elastic stack)
+
+### Loki & Grafana (Dev Only)
+Dev compose spins up:
+- Loki (port 3100)
+- Prometheus (port 9090)
+- Grafana (port 3000, admin/admin)
+
+Add Loki in Grafana: Data Sources -> Loki -> URL `http://loki:3100`.
+Query example:
+```
+{container="quizzy-dev-web-1"}
+```
+Adjust label selectors based on actual Docker container name.
+
+Add Prometheus: Data Sources -> Prometheus -> URL `http://prom:9090`.
+
+Suggested Grafana Panels:
+- HTTP Requests Rate: `sum(rate(django_http_requests_total_by_method_total[5m])) by (method)`
+- DB Connections: `pg_stat_activity_count` (add postgres exporter later)
+- Error Logs: Loki query `{container="quizzy-dev-web-1"} |= "ERROR"`
+
+### Production Shipping
+Use a Promtail sidecar or Docker logging plugin to ship container stdout to Loki. Since app logs JSON, Loki can parse labels via pipeline stages.
+
