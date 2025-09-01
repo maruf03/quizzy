@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="h5 mb-3">Invitations</h2>
+<table class="table table-sm align-middle">
+  <thead>
+  <tr><th>Quiz</th><th>Status</th><th>Invited</th></tr>
+  </thead>
+  <tbody>
+  {% if invitations %}
+    {% for inv in invitations %}
+      <tr>
+        <td><a href="{% url 'quizzes:detail' inv.quiz_id %}">{{ inv.quiz.title }}</a></td>
+        <td>
+          {% if inv.accepted %}
+            <span class="badge text-bg-success">Accepted</span>
+          {% elif inv.declined %}
+            <span class="badge text-bg-secondary">Declined</span>
+          {% else %}
+            <div class="d-flex gap-1">
+              <form method="post" action="{% url 'quizzes:accept-invite' inv.quiz_id %}">{% csrf_token %}
+                <button class="btn btn-sm btn-outline-primary">Accept</button>
+              </form>
+              <form method="post" action="{% url 'quizzes:decline-invite' inv.quiz_id %}">{% csrf_token %}
+                <button class="btn btn-sm btn-outline-danger">Decline</button>
+              </form>
+            </div>
+          {% endif %}
+        </td>
+        <td class="small text-body-secondary">{{ inv.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+    {% endfor %}
+  {% else %}
+    <tr><td colspan="3" class="text-body-secondary small">No invitations.</td></tr>
+  {% endif %}
+  </tbody>
+</table>
+{% endblock %}

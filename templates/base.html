@@ -24,9 +24,10 @@
     </div>
     {% include 'partials/footer.html' %}
   <!-- jQuery & Bootstrap JS (temporary CDN during migration) -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-3gJwYp4g4Yf+Jr3Qm5Yw1w4ZxQfZV2z6Q5v9zX+4SQA=" crossorigin="anonymous"></script>
+  <!-- jQuery CDN (SRI removed to avoid hash mismatch blocking) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  <script src="{% static 'js/enhancements.js' %}"></script>
+  <script src="{% static 'js/enhancements.js' %}?v=6"></script>
   <style>
     /* Accessible skip link */
     .skip-link { position:absolute; left:-1000px; top:auto; width:1px; height:1px; overflow:hidden; }

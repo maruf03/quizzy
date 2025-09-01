@@ -39,3 +39,18 @@ class InvitationTests(TestCase):
         self.assertEqual(res_a.status_code, 302)
         res_t2 = self.client.get(take_url)
         self.assertEqual(res_t2.status_code, 200)
+
+    def test_decline_invitation(self):
+        # create invite
+        self.client.login(username='creator', password='x')
+        invite_url = reverse('quizzes:invite', args=[self.quiz_private.id])
+        self.client.post(invite_url, {"email": "u@example.com"})
+        self.client.logout()
+        # decline as invited user
+        self.client.login(username='u', password='x')
+        decline_url = reverse('quizzes:decline-invite', args=[self.quiz_private.id])
+        res = self.client.post(decline_url)
+        self.assertEqual(res.status_code, 302)
+        inv = Invitation.objects.get(quiz=self.quiz_private, email='u@example.com')
+        self.assertTrue(inv.declined)
+        self.assertFalse(inv.accepted)

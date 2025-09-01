@@ -16,7 +16,24 @@
       <div class="d-flex align-items-center gap-2">
         {% if request.user.is_authenticated %}
           <a href="{% url 'quizzes:create' %}" class="btn btn-sm btn-primary">Create</a>
-          <form method="post" action="{% url 'logout' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" type="submit">Logout</button></form>
+          <div class="dropdown">
+            <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown" aria-label="Account menu">
+              <span class="avatar-circle" title="{{ request.user.get_full_name|default:request.user.username }}">{% firstof request.user.first_name|slice:':1' request.user.username|slice:':1' %}{% if request.user.last_name %}{{ request.user.last_name|slice:':1' }}{% endif %}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm small">
+              <li class="dropdown-header">Signed in as <strong>{{ request.user.username }}</strong></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">My Profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'quizzes:my-list' %}">My Quizzes</a></li>
+              <li><a class="dropdown-item" href="{% url 'quizzes:invitations' %}">Invitations</a></li>
+              <li><a class="dropdown-item" href="{% url 'password_change' %}">Change Password</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" class="d-inline">{% csrf_token %}
+                  <button class="dropdown-item" type="submit">Logout</button>
+                </form>
+              </li>
+            </ul>
+          </div>
         {% else %}
           <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary">Login</a>
           <a href="{% url 'register' %}" class="btn btn-sm btn-primary">Register</a>

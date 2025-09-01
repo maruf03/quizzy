@@ -20,3 +20,42 @@
   line-clamp: 2;
   overflow: hidden;
 }
+
+// Avatar circle for navbar
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $primary;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: .8rem;
+  text-transform: uppercase;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.05);
+}
+
+// Fix dropdown clipping inside .table-responsive: allow overflow for menus
+.table-responsive {
+  overflow: visible !important; // show dropdowns
+}
+// Constrain table body separately for horizontal scroll if needed
+.table-responsive > table { margin-bottom: 0; }
+
+// Higher z-index for action dropdowns in tables
+td .dropdown-menu {
+  z-index: 1055; // above cards
+}
+
+// Subtle fade/scale animations for dynamic formset rows
+@keyframes fadeScaleIn {
+  0% {opacity:0; transform: scale(.97);}
+  100% {opacity:1; transform: scale(1);} }
+@keyframes fadeCollapseOut {
+  0% {opacity:1; height:auto;}
+  100% {opacity:0; height:0; margin:0; padding-top:0; padding-bottom:0;} }
+
+.fade-scale-in { animation: fadeScaleIn .18s ease-out; }
+.fade-collapse-out { animation: fadeCollapseOut .18s ease-in forwards; overflow:hidden; }

@@ -5,6 +5,7 @@ A Django-based quiz platform with web UI, a REST API, and realtime leaderboards.
 ## Features
 - Create quizzes with questions and answers (admin UI)
 - Public or private (invite-only) quizzes
+  - Accept or decline invitations via UI
 - Attempt submission and scoring (best/first/last strategies)
 - REST API for quizzes and submissions
 - Realtime leaderboard updates via WebSockets (Channels)
@@ -77,6 +78,8 @@ Base path: `/api/`
   - POST `/api/quizzes/{id}/invite` with `{ "email": "user@example.com" }`
 - Accept invite (invited user)
   - POST `/api/quizzes/{id}/accept`
+- Decline invite (invited user)
+  - POST `/api/quizzes/{id}/decline`
 - Your submissions (session-authenticated)
   - GET `/api/submissions/`
 

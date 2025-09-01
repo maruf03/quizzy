@@ -20,9 +20,15 @@ from django.views.generic import TemplateView
 from accounts.views import RegisterView
 from quizzes.views import start_quiz
 
+handler400 = 'core.views.error_400'
+handler403 = 'core.views.error_403'
+handler404 = 'core.views.error_404'
+handler500 = 'core.views.error_500'
+
 urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('quizzes/', include(('quizzes.urls', 'quizzes'), namespace='quizzes')),
+    path('accounts/', include(('accounts.urls','accounts'), namespace='accounts')),
     path('quizzes/<int:pk>/start/', start_quiz, name='quiz-start'),
     path('api/', include(('api.urls', 'api'), namespace='api')),
     path('accounts/', include('django.contrib.auth.urls')),  # login, logout, password views

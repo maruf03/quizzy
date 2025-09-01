@@ -6,6 +6,14 @@ class Quiz(models.Model):
 	PUBLIC = "public"
 	PRIVATE = "private"
 	VISIBILITY_CHOICES = [(PUBLIC, "Public"), (PRIVATE, "Private")]
+	SCORING_BEST = "best"
+	SCORING_FIRST = "first"
+	SCORING_LAST = "last"
+	SCORING_POLICY_CHOICES = [
+		(SCORING_BEST, "Best"),
+		(SCORING_FIRST, "First"),
+		(SCORING_LAST, "Last"),
+	]
 
 	title = models.CharField(max_length=255)
 	description = models.TextField(blank=True)
@@ -15,7 +23,7 @@ class Quiz(models.Model):
 	visibility = models.CharField(max_length=10, choices=VISIBILITY_CHOICES, default=PUBLIC)
 	allow_multiple_attempts = models.BooleanField(default=False)
 	max_attempts = models.PositiveIntegerField(null=True, blank=True)
-	scoring_policy = models.CharField(max_length=10, default="best")
+	scoring_policy = models.CharField(max_length=10, default="best", choices=SCORING_POLICY_CHOICES)
 
 	def __str__(self) -> str:  # pragma: no cover
 		return self.title
@@ -45,6 +53,8 @@ class Invitation(models.Model):
 	email = models.EmailField()
 	invited_by = models.ForeignKey(User, on_delete=models.CASCADE)
 	accepted = models.BooleanField(default=False)
+	# If a user explicitly declines we track it to hide further prompts
+	declined = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:

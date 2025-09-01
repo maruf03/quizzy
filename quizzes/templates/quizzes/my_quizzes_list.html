@@ -7,7 +7,7 @@
 <div class="table-responsive small">
   <table class="table align-middle mb-0">
     <thead class="table-light">
-      <tr><th>Title</th><th>Status</th><th>Visibility</th><th class="text-end">Actions</th></tr>
+  <tr><th>Title</th><th>Status</th><th>Visibility</th><th class="text-end" style="width:60px;">Actions</th></tr>
     </thead>
     <tbody>
       {% for q in quizzes %}
@@ -16,8 +16,19 @@
           <td><span class="badge {{ q.is_published|yesno:'text-bg-success,text-bg-secondary' }}">{{ q.is_published|yesno:"Published,Draft" }}</span></td>
           <td>{{ q.visibility }}</td>
           <td class="text-end">
-            <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'quizzes:edit' q.id %}">Edit</a>
-            <a class="btn btn-sm btn-outline-danger" href="{% url 'quizzes:delete' q.id %}">Delete</a>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle py-1 px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Actions" style="line-height:1;">
+                <span class="visually-hidden">Actions</span>
+                &#8942;
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'quizzes:detail' q.id %}">View</a></li>
+                <li><a class="dropdown-item" href="{% url 'quizzes:edit' q.id %}">Edit</a></li>
+                <li><a class="dropdown-item" href="{% url 'quizzes:invite' q.id %}">Invite</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'quizzes:delete' q.id %}">Delete</a></li>
+              </ul>
+            </div>
           </td>
         </tr>
       {% empty %}

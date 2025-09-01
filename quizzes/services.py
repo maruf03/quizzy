@@ -14,7 +14,8 @@ def is_invited(user: User, quiz: Quiz) -> bool:
         return True
     if not user.is_authenticated:
         return False
-    return Invitation.objects.filter(quiz=quiz, email=user.email, accepted=True).exists()
+    # User must have an accepted (and not declined) invitation
+    return Invitation.objects.filter(quiz=quiz, email=user.email, accepted=True, declined=False).exists()
 
 
 def invite_email(user: User, quiz: Quiz, email: str) -> Invitation:
@@ -25,5 +26,11 @@ def invite_email(user: User, quiz: Quiz, email: str) -> Invitation:
 
 def accept_invite(user: User, quiz: Quiz) -> bool:
     """Accept an invitation for the current user's email. Returns True if marked accepted."""
-    updated = Invitation.objects.filter(quiz=quiz, email=user.email).update(accepted=True)
+    updated = Invitation.objects.filter(quiz=quiz, email=user.email).update(accepted=True, declined=False)
+    return updated > 0
+
+
+def decline_invite(user: User, quiz: Quiz) -> bool:
+    """Decline an invitation for the current user's email. Returns True if marked declined."""
+    updated = Invitation.objects.filter(quiz=quiz, email=user.email).update(declined=True, accepted=False)
     return updated > 0

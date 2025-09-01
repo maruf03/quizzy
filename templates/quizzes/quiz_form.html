@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2 class="h5 mb-3">{% if form.instance.pk %}Edit Quiz{% else %}New Quiz{% endif %}</h2>
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="row g-4">
+    <!-- Left column: core content -->
+    <div class="col-lg-7">
+      <div class="mb-3">
+        <label for="id_title" class="form-label fw-semibold">Title</label>
+        <input type="text" id="id_title" name="title" class="form-control" value="{{ form.title.value|default:'' }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="id_description" class="form-label fw-semibold">Description</label>
+        <textarea id="id_description" name="description" rows="6" class="form-control">{{ form.description.value|default:'' }}</textarea>
+        <div class="form-text">You can add or edit questions after saving.</div>
+      </div>
+    </div>
+    <!-- Right column: settings groups -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+      <div class="card shadow-sm">
+        <div class="card-header py-2"><strong>Visibility & Publish</strong></div>
+        <div class="card-body py-3">
+          <div class="mb-3">
+            <label for="id_visibility" class="form-label">Visibility</label>
+            <select name="visibility" id="id_visibility" class="form-select form-select-sm">
+              {% for value,label in form.visibility.field.choices %}
+                <option value="{{ value }}" {% if form.visibility.value == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-check small">
+            <input class="form-check-input" type="checkbox" name="is_published" id="id_is_published" {% if form.is_published.value %}checked{% endif %}>
+            <label class="form-check-label" for="id_is_published">Published</label>
+          </div>
+          <div class="form-text">Unpublished quizzes are only visible to you.</div>
+        </div>
+      </div>
+      <div class="card shadow-sm">
+        <div class="card-header py-2"><strong>Attempts</strong></div>
+        <div class="card-body py-3">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="allow_multiple_attempts" id="id_allow_multiple_attempts" {% if form.allow_multiple_attempts.value %}checked{% endif %}>
+            <label class="form-check-label" for="id_allow_multiple_attempts">Allow multiple attempts</label>
+          </div>
+          <div id="max-attempts-wrapper" class="mb-0">
+            <label for="id_max_attempts" class="form-label small mb-1">Max Attempts (optional)</label>
+            <input type="number" id="id_max_attempts" min="1" name="max_attempts" class="form-control form-control-sm" value="{{ form.max_attempts.value|default:'' }}" placeholder="Blank = unlimited">
+            <div class="form-text">Leave blank for unlimited (still tracked).</div>
+          </div>
+        </div>
+      </div>
+      <div class="card shadow-sm">
+        <div class="card-header py-2"><strong>Scoring</strong></div>
+        <div class="card-body py-3">
+          <label for="id_scoring_policy" class="form-label">Scoring Policy</label>
+          <select name="scoring_policy" id="id_scoring_policy" class="form-select form-select-sm">
+            {% with choices=form.scoring_policy.field.choices %}
+              {% for value,label in choices %}
+                {% if value %}
+                <option value="{{ value }}" {% if form.scoring_policy.value == value %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </select>
+          <ul class="small mt-2 mb-0 ps-3">
+            <li><strong>Best</strong>: Highest attempt score counts.</li>
+            <li><strong>First</strong>: Only the first attempt counts.</li>
+            <li><strong>Last</strong>: Latest attempt counts.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-4 d-flex gap-2">
+    <button class="btn btn-primary">Save</button>
+    <a href="{% url 'quizzes:my-list' %}" class="btn btn-outline-secondary">Cancel</a>
+  </div>
+</form>
+<script>
+  (function(){
+    const allow = document.getElementById('id_allow_multiple_attempts');
+    const wrapper = document.getElementById('max-attempts-wrapper');
+    const maxField = document.getElementById('id_max_attempts');
+    function sync(){
+      if(allow.checked){
+        wrapper.classList.remove('d-none');
+        maxField.disabled = false;
+      }else{
+        wrapper.classList.add('d-none');
+        maxField.value='';
+        maxField.disabled = true;
+      }
+    }
+    allow.addEventListener('change', sync);
+    sync();
+  })();
+</script>
+{% endblock %}

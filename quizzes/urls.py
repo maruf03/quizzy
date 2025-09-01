@@ -6,6 +6,7 @@ from .views import (
     SubmissionResultsView,
     InviteView,
     AcceptInviteView,
+    DeclineInviteView,
     MyQuizListView,
     QuizCreateView,
     QuizUpdateView,
@@ -15,6 +16,7 @@ from .views import (
     
     # Leaderboard full view
     QuizLeaderboardView,
+    InvitationsListView,
 )
 
 
@@ -27,6 +29,7 @@ urlpatterns = [
     path("submissions/<int:pk>/", SubmissionResultsView.as_view(), name="results"),
     path("<int:pk>/invite/", InviteView.as_view(), name="invite"),
     path("<int:pk>/accept/", AcceptInviteView.as_view(), name="accept-invite"),
+    path("<int:pk>/decline/", DeclineInviteView.as_view(), name="decline-invite"),
     # Creator CRUD
     path("my/", MyQuizListView.as_view(), name="my-list"),
     path("my/new/", QuizCreateView.as_view(), name="create"),
@@ -37,4 +40,5 @@ urlpatterns = [
     path("my/<int:pk>/questions/<int:qid>/edit/", QuestionEditView.as_view(), name="question-edit"),
     # Full leaderboard
     path("<int:pk>/leaderboard/", QuizLeaderboardView.as_view(), name="leaderboard"),
+    path("invitations/", InvitationsListView.as_view(), name="invitations"),
 ]

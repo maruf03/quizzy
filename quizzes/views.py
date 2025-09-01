@@ -4,14 +4,16 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, TemplateView, FormView, View
+from django.contrib import messages
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
 from .models import Quiz, Question, Answer
-from .services import is_invited, invite_email, accept_invite
+from .services import is_invited, invite_email, accept_invite, decline_invite
 from submissions.models import Submission, QuestionAttempt
 from .forms import QuestionForm, AnswerFormSet
+from quizzes.models import Invitation
 
 
 @login_required
@@ -135,7 +137,16 @@ class AcceptInviteView(LoginRequiredMixin, View):
 	def post(self, request, *args, **kwargs):
 		quiz = get_object_or_404(Quiz, pk=kwargs["pk"]) 
 		accept_invite(request.user, quiz)
+		messages.success(request, f"Invitation accepted for '{quiz.title}'.")
 		return redirect(reverse("quizzes:detail", kwargs={"pk": quiz.pk}))
+
+
+class DeclineInviteView(LoginRequiredMixin, View):
+	def post(self, request, *args, **kwargs):
+		quiz = get_object_or_404(Quiz, pk=kwargs["pk"]) 
+		decline_invite(request.user, quiz)
+		messages.info(request, f"Invitation declined for '{quiz.title}'.")
+		return redirect(reverse("quizzes:invitations"))
 
 
 class MyQuizListView(LoginRequiredMixin, ListView):
@@ -203,6 +214,8 @@ class QuestionListView(LoginRequiredMixin, ListView):
 	context_object_name = "questions"
 
 	def dispatch(self, request, *args, **kwargs):
+		if not request.user.is_authenticated:
+			return self.handle_no_permission()
 		self.quiz = get_object_or_404(Quiz, pk=kwargs["pk"], creator=request.user)
 		return super().dispatch(request, *args, **kwargs)
 
@@ -219,6 +232,8 @@ class QuestionEditView(LoginRequiredMixin, TemplateView):
 	template_name = "quizzes/question_form.html"
 
 	def dispatch(self, request, *args, **kwargs):
+		if not request.user.is_authenticated:
+			return self.handle_no_permission()
 		self.quiz = get_object_or_404(Quiz, pk=kwargs["pk"], creator=request.user)
 		self.question = None
 		qid = kwargs.get("qid")
@@ -279,3 +294,13 @@ class QuizLeaderboardView(DetailView):
 			.order_by('-score', 'submitted_at')[:100])
 		ctx["entries"] = entries
 		return ctx
+
+
+class InvitationsListView(LoginRequiredMixin, ListView):
+	template_name = "quizzes/invitations_list.html"
+	context_object_name = "invitations"
+
+	def get_queryset(self):
+		user = self.request.user
+		# Invitations where user is the intended recipient by email or ones they sent
+		return Invitation.objects.filter(email=user.email).order_by('-created_at')

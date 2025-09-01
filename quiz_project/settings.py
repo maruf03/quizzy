@@ -223,3 +223,12 @@ FEATURE_FLAGS = {
 }
 MAX_QUIZ_ATTEMPTS = 3
 
+# Email / SMTP (local mail server at 127.0.0.1:1025)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = '127.0.0.1'
+EMAIL_PORT = 1025
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = False
+DEFAULT_FROM_EMAIL = 'Quizzy <noreply@quizzy.local>'
+
