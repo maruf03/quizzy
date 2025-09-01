@@ -1,0 +1,40 @@
+# Python cache & build
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+*.dist-info/
+
+# VCS & tooling
+.git
+.gitignore
+.idea/
+.vscode/
+
+# Environments & secrets
+.env
+.env.*
+*.env
+.venv/
+
+# Node / frontend
+node_modules/
+npm-debug.log
+yarn.lock
+.pnpm-store/
+
+# Runtime generated
+staticfiles/
+media/
+coverage/
+htmlcov/
+pytest_cache/
+
+# Local DB
+*.sqlite3
+
+# Docker build leftovers
+Dockerfile*
+.dockerignore

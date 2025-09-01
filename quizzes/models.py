@@ -28,6 +28,9 @@ class Quiz(models.Model):
 	def __str__(self) -> str:  # pragma: no cover
 		return self.title
 
+	def save(self, *args, **kwargs):
+		return super().save(*args, **kwargs)
+
 
 class Question(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name="questions")
@@ -37,6 +40,9 @@ class Question(models.Model):
 
 	def __str__(self) -> str:  # pragma: no cover
 		return f"Q{self.pk}: {self.text[:50]}"
+
+	def save(self, *args, **kwargs):
+		return super().save(*args, **kwargs)
 
 
 class Answer(models.Model):

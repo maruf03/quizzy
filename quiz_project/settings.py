@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_prometheus',
+    'storages',
     # Third-party
     'rest_framework',
     'channels',
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -58,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.AttemptGuardMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'quiz_project.urls'
@@ -84,15 +89,33 @@ WSGI_APPLICATION = 'quiz_project.wsgi.application'
 ASGI_APPLICATION = 'quiz_project.asgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# Database (Postgres via DATABASE_URL, fallback to SQLite)
+from urllib.parse import urlparse
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if DATABASE_URL:
+    # Expected formats: postgres://user:pass@host:port/dbname or postgresql://
+    # Minimal parse; rely on dj-database-url if added later.
+    url = urlparse(DATABASE_URL)
+    ENGINE = 'django.db.backends.postgresql'
+    DB_NAME = url.path.lstrip('/')
+    DATABASES = {
+        'default': {
+            'ENGINE': ENGINE,
+            'NAME': DB_NAME,
+            'USER': url.username or '',
+            'PASSWORD': url.password or '',
+            'HOST': url.hostname or '',
+            'PORT': url.port or '',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -137,6 +160,51 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# django-prometheus will collect default Django & DB metrics automatically.
+
+# ----------------------------------------------------------------------------
+# Storage (S3-compatible for media & optionally static)
+# ----------------------------------------------------------------------------
+# Environment variables (no hardcoded values)
+# Required:
+#   AWS_STORAGE_BUCKET_NAME
+#   AWS_ACCESS_KEY_ID
+#   AWS_SECRET_ACCESS_KEY
+# Optional / for non-AWS endpoints (e.g. MinIO):
+#   AWS_S3_ENDPOINT_URL (e.g. http://minio:9000 or http://127.0.0.1:9000)
+#   AWS_S3_REGION_NAME (default empty)
+#   AWS_S3_SIGNATURE_VERSION (e.g. s3v4)
+#   AWS_QUERYSTRING_AUTH ("0" to disable signed URLs for public-read buckets)
+# Static vs media separation:
+#   USE_SEPARATE_STATIC_BUCKET=1 and STATIC_AWS_STORAGE_BUCKET_NAME to override
+
+USE_S3 = os.environ.get("USE_S3", "1") == "1"
+if USE_S3:
+    # Use custom prefixed storage classes (media & static) backed by same or separate buckets
+    DEFAULT_FILE_STORAGE = "quiz_project.storage.MediaRootS3Boto3Storage"
+    STATICFILES_STORAGE = "quiz_project.storage.StaticRootS3Boto3Storage"
+    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "")
+    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", "")
+    AWS_S3_ENDPOINT_URL = os.environ.get("AWS_S3_ENDPOINT_URL") or None
+    AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME") or None
+    AWS_S3_SIGNATURE_VERSION = os.environ.get("AWS_S3_SIGNATURE_VERSION") or None
+    AWS_QUERYSTRING_AUTH = os.environ.get("AWS_QUERYSTRING_AUTH", "1") == "1"
+    AWS_DEFAULT_ACL = os.environ.get("AWS_DEFAULT_ACL") or None  # e.g. 'public-read'
+    AWS_S3_OBJECT_PARAMETERS = {}
+
+    # Static bucket override (optional)
+    STATIC_AWS_STORAGE_BUCKET_NAME = os.environ.get("STATIC_AWS_STORAGE_BUCKET_NAME", AWS_STORAGE_BUCKET_NAME)
+    MEDIA_AWS_STORAGE_BUCKET_NAME = os.environ.get("MEDIA_AWS_STORAGE_BUCKET_NAME", AWS_STORAGE_BUCKET_NAME)
+
+    # Optional media/static URLs override
+    MEDIA_URL = os.environ.get("MEDIA_URL", "/media/")
+    # Public / private bucket separation (optional)
+    PUBLIC_MEDIA_AWS_STORAGE_BUCKET_NAME = os.environ.get("PUBLIC_MEDIA_AWS_STORAGE_BUCKET_NAME") or AWS_STORAGE_BUCKET_NAME
+    PRIVATE_MEDIA_AWS_STORAGE_BUCKET_NAME = os.environ.get("PRIVATE_MEDIA_AWS_STORAGE_BUCKET_NAME") or AWS_STORAGE_BUCKET_NAME
+
+# Local dev fallback keeps existing STATIC_URL configuration.
 
 # Authentication backends and auth settings
 AUTHENTICATION_BACKENDS = [

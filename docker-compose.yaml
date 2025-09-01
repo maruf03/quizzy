@@ -1,0 +1,56 @@
+version: '3.9'
+
+x-common-env: &common-env
+  DJANGO_SETTINGS_MODULE: quiz_project.settings
+  REDIS_URL: redis://redis:6379/0
+  DJANGO_DEBUG: "0"
+  DATABASE_URL: postgres://quizzy:quizzy@db:5432/quizzy
+  USE_S3: "1"
+  AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  AWS_S3_ENDPOINT_URL: ${AWS_S3_ENDPOINT_URL:-}
+  AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME:-}
+  AWS_S3_SIGNATURE_VERSION: ${AWS_S3_SIGNATURE_VERSION:-}
+  AWS_QUERYSTRING_AUTH: ${AWS_QUERYSTRING_AUTH:-1}
+  USE_SEPARATE_STATIC_BUCKET: ${USE_SEPARATE_STATIC_BUCKET:-0}
+  STATIC_AWS_STORAGE_BUCKET_NAME: ${STATIC_AWS_STORAGE_BUCKET_NAME:-}
+
+services:
+  web:
+    build: .
+    image: quizzy:latest
+    environment: *common-env
+    depends_on:
+      - redis
+      - db
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "manage.py", "check"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  redis:
+    image: redis:7.2-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: quizzy
+      POSTGRES_PASSWORD: quizzy
+      POSTGRES_DB: quizzy
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  redis_data:
+  pg_data:

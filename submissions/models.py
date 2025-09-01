@@ -17,6 +17,9 @@ class Submission(models.Model):
 	def __str__(self) -> str:  # pragma: no cover
 		return f"Submission {self.user_id} -> {self.quiz_id} (#{self.attempt_number})"
 
+	def save(self, *args, **kwargs):
+		return super().save(*args, **kwargs)
+
 
 class QuestionAttempt(models.Model):
 	submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name="question_attempts")
@@ -33,4 +36,7 @@ class QuestionAttempt(models.Model):
 
 	def __str__(self) -> str:  # pragma: no cover
 		return f"Attempt Q{self.question_id} sub {self.submission_id}"
+
+	def save(self, *args, **kwargs):
+		return super().save(*args, **kwargs)
 

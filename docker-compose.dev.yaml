@@ -1,0 +1,65 @@
+version: '3.9'
+
+x-common-env: &common-env
+  DJANGO_SETTINGS_MODULE: quiz_project.settings
+  REDIS_URL: redis://redis:6379/0
+  DJANGO_DEBUG: "1"
+  DATABASE_URL: postgres://quizzy:quizzy@db:5432/quizzy
+  USE_S3: "1"
+  AWS_STORAGE_BUCKET_NAME: quizzy-dev
+  AWS_ACCESS_KEY_ID: minio
+  AWS_SECRET_ACCESS_KEY: minio123456
+  AWS_S3_ENDPOINT_URL: http://minio:9000
+  AWS_S3_REGION_NAME: us-east-1
+  AWS_QUERYSTRING_AUTH: "0"
+  USE_SEPARATE_STATIC_BUCKET: "1"
+  STATIC_AWS_STORAGE_BUCKET_NAME: quizzy-dev-static
+
+services:
+  web:
+    build: .
+    image: quizzy:dev
+    command: python manage.py runserver 0.0.0.0:8000
+    environment: *common-env
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+      - db
+      - minio
+    ports:
+      - "8000:8000"
+
+  redis:
+    image: redis:7.2-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    volumes:
+      - redis_data:/data
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: quizzy
+      POSTGRES_PASSWORD: quizzy
+      POSTGRES_DB: quizzy
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2024-06-29T01-20-47Z
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123456
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  redis_data:
+  minio_data:
+  pg_data:
