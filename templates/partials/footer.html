@@ -1,0 +1,7 @@
+{% load tz %}
+<footer class="mt-auto border-top py-4 small text-center text-muted">
+  <div class="container">
+    <p class="mb-1">© {% now "Y" %} {{ SITE_NAME }}{% if APP_VERSION %} v{{ APP_VERSION }}{% endif %} · <a href="/api/">API</a></p>
+    {% if ENV_LABEL %}<span class="badge text-bg-secondary">{{ ENV_LABEL }}</span>{% endif %}
+  </div>
+</footer>

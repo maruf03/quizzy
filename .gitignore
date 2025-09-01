@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+.Python
+.venv/
+venv/
+ENV/
+
+# Django
+/staticfiles/
+media/
+.db.sqlite3
+
+# Node
+node_modules/
+.npm/
+
+# Tailwind build output (kept committed as placeholder, but ignore rebuilds)
+/static/css/tailwind.css.map
+
+# OS/editor
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/

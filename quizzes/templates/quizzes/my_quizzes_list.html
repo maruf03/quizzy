@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+  <h2 class="h4 mb-0">My Quizzes</h2>
+  <a class="btn btn-primary btn-sm" href="{% url 'quizzes:create' %}">New Quiz</a>
+</div>
+<div class="table-responsive small">
+  <table class="table align-middle mb-0">
+    <thead class="table-light">
+      <tr><th>Title</th><th>Status</th><th>Visibility</th><th class="text-end">Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for q in quizzes %}
+        <tr>
+          <td><a href="{% url 'quizzes:detail' q.id %}">{{ q.title }}</a></td>
+          <td><span class="badge {{ q.is_published|yesno:'text-bg-success,text-bg-secondary' }}">{{ q.is_published|yesno:"Published,Draft" }}</span></td>
+          <td>{{ q.visibility }}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-secondary me-1" href="{% url 'quizzes:edit' q.id %}">Edit</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'quizzes:delete' q.id %}">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="text-center text-body-secondary py-4">No quizzes yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

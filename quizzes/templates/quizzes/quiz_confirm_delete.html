@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="h4 mb-3">Delete quiz</h2>
+<p>Are you sure you want to delete this quiz?</p>
+<form method="post" class="d-flex gap-2">{% csrf_token %}
+  <a class="btn btn-outline-secondary" href="{% url 'quizzes:my-list' %}">Cancel</a>
+  <button class="btn btn-danger" type="submit">Delete</button>
+</form>
+{% endblock %}

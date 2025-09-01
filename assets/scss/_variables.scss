@@ -1,0 +1,20 @@
+// Bootstrap variable overrides & design tokens
+$primary: #4f46e5; // indigo-600
+$secondary: #64748b; // slate-500
+$success: #16a34a; // green-600
+$info: #0ea5e9; // sky-600
+$warning: #d97706; // amber-600
+$danger: #dc2626; // red-600
+$light: #f1f5f9; // slate-100
+$dark: #0f172a; // slate-900
+
+// Fonts
+$font-family-sans-serif: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif;
+
+// Border radius tweak for a slightly softer UI
+$border-radius: .5rem;
+$border-radius-sm: .375rem;
+$border-radius-lg: .75rem;
+
+// Enable CSS variables for colors (helps with dark mode toggling later)
+$enable-cssgrid: true;

@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2 class="h4 mb-3">Invite user by email</h2>
+<form method="post" class="card p-4 shadow-sm" style="max-width:480px;">{% csrf_token %}
+  <div class="mb-3">
+    <label class="form-label" for="id_email">Email</label>
+    <input class="form-control" id="id_email" type="email" name="email" required>
+  </div>
+  <button class="btn btn-primary" type="submit">Invite</button>
+</form>
+{% endblock %}

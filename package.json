@@ -1,0 +1,17 @@
+{
+  "name": "quizzy",
+  "private": true,
+  "devDependencies": {
+    "bootstrap": "^5.3.3",
+    "@popperjs/core": "^2.11.8",
+    "sass": "^1.77.0",
+    "jquery": "^3.7.1",
+    "npm-run-all": "^4.1.5"
+  },
+  "scripts": {
+    "dev": "npm-run-all --parallel dev:bootstrap",
+  "dev:bootstrap": "sass --load-path=node_modules assets/scss/theme.scss static/css/app.css --watch --no-source-map",
+  "build": "npm-run-all build:bootstrap",
+  "build:bootstrap": "sass --load-path=node_modules assets/scss/theme.scss static/css/app.css --no-source-map --style=compressed"
+  }
+}

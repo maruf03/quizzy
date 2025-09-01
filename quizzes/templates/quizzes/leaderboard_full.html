@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="h4 mb-1">Leaderboard – {{ quiz.title }}</h2>
+    <p class="text-body-secondary small mb-0">Top 100 submissions ordered by score.</p>
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'quizzes:detail' quiz.id %}">Back to quiz</a>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0" id="full-leaderboard">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th class="text-end">Score</th>
+            <th class="text-end">Attempt</th>
+            <th>When</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if entries %}
+            {% for s in entries %}
+              <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ s.user.username }}</td>
+                <td class="text-end fw-semibold">{{ s.score }}</td>
+                <td class="text-end small">{{ s.attempt_number }}</td>
+                <td class="small" data-reltime="{{ s.submitted_at|date:'c' }}">{{ s.submitted_at|date:'Y-m-d H:i' }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="5" class="text-body-secondary small">No submissions yet.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

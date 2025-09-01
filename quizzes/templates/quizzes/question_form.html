@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load ui %}
+{% block content %}
+    <h3 class="h6 mb-2">Answers</h3>
+    {{ formset.management_form }}
+    <div class="mb-2 small text-body-secondary">At least two answers, and mark one correct.</div>
+    <div data-formset="answers" data-prefix="{{ formset.prefix }}">
+      {% for aform in formset.forms %}
+        <div class="card mb-2 formset-item" data-index="{{ forloop.counter0 }}">
+          <div class="card-body p-3">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-9">
+                <label class="form-label small" for="{{ aform.text.id_for_label }}">Text</label>
+                {{ aform.text|add_class:"form-control" }}
+              </div>
+              <div class="col-md-2">
+                <div class="form-check mt-4">
+                  {{ aform.is_correct|add_class:"form-check-input" }}
+                  <label class="form-check-label small" for="{{ aform.is_correct.id_for_label }}">Correct</label>
+                </div>
+              </div>
+              <div class="col-md-1 d-flex justify-content-end">
+                <button type="button" class="btn btn-sm btn-outline-danger mt-4 remove-row" {% if forloop.first and forloop.last %}disabled{% endif %}>&times;</button>
+              </div>
+            </div>
+            {% if aform.DELETE %}<div class="d-none delete-field">{{ aform.DELETE }}</div>{% endif %}
+            {% if aform.errors %}
+              <div class="invalid-feedback d-block small mt-1">{{ aform.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="mb-3"><button type="button" class="btn btn-sm btn-outline-primary" id="add-answer">Add answer</button></div>
+          {% if aform.DELETE %}
+                <div class="form-check small mt-2">Delete: {{ aform.DELETE }}</div>
+          {% endif %}
+            </div></div>
+      {% endfor %}
+    </div>
+    {% if formset.non_form_errors %}
+      <div class="mt-2 text-sm text-red-600">{{ formset.non_form_errors }}</div>
+    {% endif %}
+  </div>
+  <div>
+  <button class="btn btn-primary">Save</button>
+  </div>
+</form>
+{% endblock %}

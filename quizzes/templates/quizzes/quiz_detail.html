@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+  <div>
+    <h2 class="h3 mb-1">{{ quiz.title }}</h2>
+    <p class="text-body-secondary small mb-0">{{ quiz.description }}</p>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <span class="badge text-bg-secondary">{{ quiz.visibility|title }}</span>
+    <span class="badge {{ quiz.is_published|yesno:'text-bg-success,text-bg-warning' }}">{{ quiz.is_published|yesno:"Published,Draft" }}</span>
+  </div>
+</div>
+<div class="d-flex gap-2 flex-wrap mb-4">
+  {% if user.is_authenticated %}
+    <a class="btn btn-primary" href="{% url 'quiz-start' quiz.id %}">Start</a>
+    <a class="btn btn-outline-primary" href="{% url 'quizzes:take' quiz.id %}">Take</a>
+    {% if user.id == quiz.creator_id %}
+      <a class="btn btn-outline-secondary" href="{% url 'quizzes:invite' quiz.id %}">Invite</a>
+    {% endif %}
+  {% else %}
+    <a class="link-primary" href="/accounts/login/">Login</a> to take this quiz.
+  {% endif %}
+</div>
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="h6 mb-0">Top Scores</h3>
+          <a class="small" href="{% url 'quizzes:leaderboard' quiz.id %}">Full leaderboard »</a>
+        </div>
+        <div id="live-leaderboard" data-quiz="{{ quiz.id }}">
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0" id="leaderboard-table">
+              <thead class="table-light">
+                <tr><th>#</th><th>User</th><th class="text-end">Score</th><th class="text-end">Attempt</th><th>When</th></tr>
+              </thead>
+              <tbody>
+                <tr class="placeholder-row"><td colspan="5" class="text-body-secondary small">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <!-- Placeholder for future quiz metadata / recent activity -->
+  </div>
+</div>
+{% endblock %}
